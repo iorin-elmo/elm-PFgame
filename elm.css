@@ -1,0 +1,16 @@
+#timelimit {
+    width: 200px;
+    height: 10px;
+}
+#timelimit .inner {
+    animation: anime-timelimit 8s linear;
+    height: 100%;
+}
+
+@keyframes anime-timelimit {
+      0% {width: 100%; background-color: blue;}
+     50% {width: 40%; background-color: blue;}
+     70% {width: 20%; background-color: yellow;}
+     80% {width: 10%; background-color: red;}
+    100% {width: 0%; background-color: red;}
+}
