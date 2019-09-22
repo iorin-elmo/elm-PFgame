@@ -10,21 +10,25 @@ import Array
 import Random
 
 type alias Model =
-    { count : Int, number : Int, isOver : Bool }
+    { count : Int, number : Int, isOver : Bool, setTimer : Timer }
 
 
 initialModel : Model
 initialModel =
-    { count = 1, number = 35, isOver = False }
+    { count = 1, number = 35, isOver = False, setTimer = Set1ms }
 
 
 type Msg
     = Pressed Int
     | Continue
     | Next Int
+    | SetTimer Posix
     | Timeout Posix
     | None
 
+type Timer
+    = Set1ms
+    | Set8s
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -49,8 +53,13 @@ update msg model =
             , Cmd.none
             )
 
+        SetTimer _ ->
+            ( { model | setTimer = Set8s }
+            , Cmd.none
+            )
+
         Next q ->
-            ( { model | number = q }
+            ( { model | number = q, setTimer = Set1ms }
             , Cmd.none
             )
 
@@ -110,15 +119,20 @@ view model =
             , br[][]
             , text <| String.fromInt model.number
             , br[][]
-            , timeLimitBar
+            , timeLimitBar model
             , br[][]
             ]
             (List.map makeButton (List.take (kindsOfButtons model.count) (Array.toList primeArray)))
         )
 
-timeLimitBar =
-    div [ id "timelimit" ]
-        [ div [ class "inner" ][] ]
+timeLimitBar : Model -> Html Msg
+timeLimitBar model=
+    case model.setTimer of
+        Set8s -> 
+            div [ id "timelimit" ]
+                [ div [ class "inner" ][] ]
+        Set1ms ->
+            br[][]
 
 subscription : Model -> Sub Msg
 subscription model =
@@ -126,7 +140,9 @@ subscription model =
     then
         Sub.none
     else
-        every 8000 Timeout
+        case model.setTimer of
+            Set1ms -> every 20 SetTimer
+            Set8s  -> every 7980 Timeout
 
 main : Program () Model Msg
 main =
