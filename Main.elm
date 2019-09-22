@@ -3,18 +3,19 @@ module Main exposing (main)
 import Browser
 
 import Html exposing (Html, button, div, text, br)
+import Html.Attributes exposing (id, class)
 import Html.Events exposing (onClick)
 import Time exposing (Posix, every)
 import Array
 import Random
 
 type alias Model =
-    { count : Int, number : Int, isOver : Bool, primes : List Int }
+    { count : Int, number : Int, isOver : Bool }
 
 
 initialModel : Model
 initialModel =
-    { count = 1, number = 35, isOver = False, primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,57,59,61,67,71,73,79,83,89,97] }
+    { count = 1, number = 35, isOver = False }
 
 
 type Msg
@@ -34,7 +35,7 @@ update msg model =
                 ( { model | count = model.count+1 }
                 , Random.generate Next (nextComposite (kindsOfButtons model.count - 1) (model.count//5+2))
                 )
-                
+
               else
                 ( { model | number = model.number // n}
                 , Cmd.none
@@ -47,19 +48,19 @@ update msg model =
             ( { model | isOver = True }
             , Cmd.none
             )
-        
+
         Next q ->
             ( { model | number = q }
             , Cmd.none
             )
-        
+
         Continue ->
             ( initialModel, Cmd.none )
-                
+
         _ -> ( model, Cmd.none )
 
 numSys : Int -> String
-numSys n = 
+numSys n =
     case (Basics.modBy 10 n) of
         1 -> "st"
         2 -> "nd"
@@ -87,7 +88,7 @@ makeButton : Int -> Html Msg
 makeButton n =
     button[onClick <| Pressed n][text <| String.fromInt n]
 
-kindsOfButtons n= 
+kindsOfButtons n=
     4*(n//100+1)
 
 view : Model -> Html Msg
@@ -104,23 +105,29 @@ view model =
       div []
         (List.append
             [ text <| String.append (String.fromInt model.count)
-                   <| String.append (numSys model.count) 
+                   <| String.append (numSys model.count)
                                     " problem"
             , br[][]
             , text <| String.fromInt model.number
             , br[][]
+            , timeLimitBar
+            , br[][]
             ]
-            (List.map makeButton (List.take (kindsOfButtons model.count) model.primes))
+            (List.map makeButton (List.take (kindsOfButtons model.count) (Array.toList primeArray)))
         )
 
-subscription : Model -> Sub Msg 
+timeLimitBar =
+    div [ id "timelimit" ]
+        [ div [ class "inner" ][] ]
+
+subscription : Model -> Sub Msg
 subscription model =
     if model.isOver
-    then 
+    then
         Sub.none
     else
-        every 8000 Timeout  
-        
+        every 8000 Timeout
+
 main : Program () Model Msg
 main =
     Browser.element
