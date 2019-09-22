@@ -4,6 +4,7 @@ import Browser
 
 import Html exposing (Html, button, div, text, br)
 import Html.Events exposing (onClick)
+import Time exposing (Posix, every)
 import Array
 import Random
 
@@ -20,6 +21,7 @@ type Msg
     = Pressed Int
     | Continue
     | Next Int
+    | Timeout Posix
     | None
 
 
@@ -41,7 +43,11 @@ update msg model =
                 ( { model | isOver = True }
                 , Cmd.none
                 )
-                
+        Timeout _ ->
+            ( { model | isOver = True }
+            , Cmd.none
+            )
+        
         Next q ->
             ( { model | number = q }
             , Cmd.none
@@ -107,13 +113,19 @@ view model =
             (List.map makeButton (List.take (kindsOfButtons model.count) model.primes))
         )
 
+subscription : Model -> Sub Msg 
+subscription model =
+    if model.isOver
+    then 
+        Sub.none
+    else
+        every 8000 Timeout  
+        
 main : Program () Model Msg
 main =
     Browser.element
         { init = \_ -> ( initialModel, Random.generate Next (nextComposite 3 2) )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscription
         }
-        
-        
