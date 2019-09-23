@@ -128,11 +128,11 @@ view model =
 timeLimitBar : Model -> Html Msg
 timeLimitBar model=
     case model.setTimer of
-        Set8s -> 
+        Set8s ->
             div [ id "timelimit" ]
                 [ div [ class "inner" ][] ]
         Set1ms ->
-            br[][]
+            div [ id "timelimit" ][]
 
 subscription : Model -> Sub Msg
 subscription model =
