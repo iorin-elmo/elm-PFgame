@@ -1,6 +1,6 @@
 # elm-PFgame
  (PF means Prime Fatorization)
-##Command
+##Command 
 ``` sh
 elm make Main.elm --output=js/Elm.js
 ```
