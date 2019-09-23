@@ -1,6 +1,8 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events exposing (onKeyDown)
+import Json.Decode exposing (Decoder, field ,string)
 
 import Html exposing (Html, button, div, text, br)
 import Html.Attributes exposing (id, class)
@@ -128,11 +130,11 @@ view model =
 timeLimitBar : Model -> Html Msg
 timeLimitBar model=
     case model.setTimer of
-        Set8s -> 
+        Set8s ->
             div [ id "timelimit" ]
                 [ div [ class "inner" ][] ]
         Set1ms ->
-            br[][]
+            div [ id "timelimit" ][]
 
 subscription : Model -> Sub Msg
 subscription model =
@@ -142,7 +144,18 @@ subscription model =
     else
         case model.setTimer of
             Set1ms -> every 20 SetTimer
-            Set8s  -> every 7980 Timeout
+            Set8s  ->
+                Sub.batch
+                    [ every 7980 Timeout
+                    , onKeyDown keyDecoder
+                    ]
+
+keyDecoder : Decoder Msg
+keyDecoder =
+    (field "key" string)
+        |> Json.Decode.map String.toInt
+        |> Json.Decode.map (Maybe.withDefault 1)
+        |> Json.Decode.map Pressed
 
 main : Program () Model Msg
 main =
