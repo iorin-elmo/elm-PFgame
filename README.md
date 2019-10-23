@@ -2,5 +2,5 @@
  (PF means Prime Fatorization) 
 ## Command
 ``` sh
-elm make Main.elm --output=js/Elm.js
+elm make Main.elm --output=elm.js
 ```
